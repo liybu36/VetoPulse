@@ -1,0 +1,131 @@
+#include "vetopulsebasic.hh"
+#include <vector>
+#include <string>
+#include <map>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <algorithm>
+
+#include "TMath.h"
+#include "TF1.h"
+#include "TH1F.h"
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TRint.h"
+#include "TMath.h"
+#include "TFile.h"
+#include "TChain.h"
+#include "TTree.h"
+#include "TROOT.h"
+#include "TLegend.h"
+#include "TPad.h"
+#include "TNtuple.h"
+#include "TString.h"
+
+using namespace std;
+
+bool vetopulsebasic::Verifydatafile(TString mainfile)
+{
+  ifstream NameCheck;
+  NameCheck.open(mainfile.Data());
+  if(!NameCheck.good())
+    { NameCheck.close();
+      return false;
+    }
+  else{
+    TFile *f = new TFile(mainfile);
+    if(!f->IsOpen() || f->IsZombie())
+      {
+	NameCheck.close();
+	f->Close();
+	return false;
+      }
+    else{
+      cout<<"Processing the data file: "<<mainfile<<endl;
+      NameCheck.close();
+      f->Close();
+      return true;
+    }
+  }
+}
+
+void vetopulsebasic::SetIsotopes()
+{
+  Source.push_back("C14");  //0
+  Source.push_back("Co60"); //1 
+  Source.push_back("Co57"); //2
+  Source.push_back("K40");  //3
+  Source.push_back("Tl208");//4 
+  Source.push_back("Th232");//5
+  Source.push_back("Th232Lower");//6
+  Source.push_back("U235");//7
+  Source.push_back("U235Lower");//8
+  Source.push_back("U238");//9
+  Source.push_back("U238Lower");//10
+
+  PDG.push_back(1000060140);
+  PDG.push_back(1000270600);
+  PDG.push_back(1000270570);
+  PDG.push_back(1000190400);
+  PDG.push_back(1000812080);
+  PDG.push_back(1000902320);
+  PDG.push_back(1000862200);
+  PDG.push_back(1000922350);
+  PDG.push_back(1000862190);
+  PDG.push_back(1000922380);
+  PDG.push_back(1000862220);
+
+  Normalization.resize(Source.size());
+  fraction.resize(Source.size());
+
+  NBins.push_back(160);
+  NBins.push_back(2600);
+  NBins.push_back(800);
+  NBins.push_back(1600);
+  NBins.push_back(2000);
+  NBins.push_back(2000);
+  NBins.push_back(3500);
+  NBins.push_back(900);
+  NBins.push_back(1200);
+  NBins.push_back(1800);
+  NBins.push_back(3000);
+
+  //TPC energy range
+  TBins.push_back(160);
+  TBins.push_back(1600);
+  TBins.push_back(500);
+  TBins.push_back(1000);
+  TBins.push_back(1300);
+  TBins.push_back(1300);
+  TBins.push_back(2500);
+  TBins.push_back(500);
+  TBins.push_back(800);
+  TBins.push_back(1200);
+  TBins.push_back(2000);
+}
+
+int vetopulsebasic::Search_Isotope(string sample)
+{
+  size_t pos;
+  for(size_t i=0; i<Source.size(); i++)
+    {
+      if(sample==Source.at(i))
+	pos=i;
+    }
+  return (int)pos;
+}
+
+void vetopulsebasic::Fill_Isotope_Pos(vector<string> raw)
+{
+  for(size_t i=0; i<raw.size(); i++)
+    Source_Pos.push_back(Search_Isotope(raw.at(i)));
+}
+
+vector<int> vetopulsebasic::Match_Isotope(vector<string> raw)
+{
+  vector<int> Isotope_Pos;
+  for(size_t i=0; i<raw.size(); i++)
+    Isotope_Pos.push_back(Search_Isotope(raw.at(i)));
+  return Isotope_Pos;
+}

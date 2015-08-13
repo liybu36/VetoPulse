@@ -154,6 +154,7 @@ void DSTtreeSelector::Terminate()
   FullSpectrum_ntuple = dynamic_cast<TNtuple*>(list->FindObject(Form("FullSpectrum_ntuple")));
   Veto_TPC_hist = dynamic_cast<TH2F*>(list->FindObject(Form("Veto_TPC_hist"))); 
   id = dynamic_cast<TH1F*>(list->FindObject(Form("id")));
+  livetime = dynamic_cast<TNtuple*>(list->FindObject(Form("livetime")));
   int nEntries = id->Integral();
 
   TCanvas *c1 = new TCanvas("c1", "Full Spectrum with Fit", 1200, 600);
@@ -168,6 +169,7 @@ void DSTtreeSelector::Terminate()
     //    TFile outfile(output.c_str(), "RECREATE");
     TFile outfile(output.c_str(), "UPDATE");
     id->Write();
+    livetime->Write();
     C14Spectrum->Write();
     RandomSpectrum->Write();
     Co60Spectrum->Write();
@@ -191,6 +193,7 @@ void DSTtreeSelector::Terminate()
 	fFile = TFile::Open(outputFile);
 	fFile->cd();
 	id->Write();
+	livetime->Write();
 	C14Spectrum->Write();
 	RandomSpectrum->Write();
 	Co60Spectrum->Write();
@@ -244,6 +247,7 @@ void DSTtreeSelector::FillHistograms()
   Double_t total_s1_TBAcorr = tpc_total_s1 * (1. - diff_total_s1);
 
   bool afterpulse = false;
+  livetime->Fill(tpc_livetime,tpc_eventID);
   for(size_t i=0; i<od_cluster_start->size(); i++)
     {
       if(od_cluster_charge->at(i)>0 && od_cluster_pass_multcut->at(i)==1 && od_wt_charge<500)
@@ -305,7 +309,7 @@ void DSTtreeSelector::BookHistograms()
   TList* list = GetOutputList();
 
   int Bins = 2000;
-
+  livetime = new TNtuple("livetime","tpc live time","live_time:eventid");
   Fulllate = new TH1F("Fulllate","lsv cluster fixed width charge full spectrum[40,140]us;charge [PE];Counts",Bins,0,2000);
   FullSpectrum = new TH1F("FullSpectrum","lsv cluster fixed width charge full spectrum;charge [PE];Counts",Bins,0,2000);
   FullSpectrum_ntuple = new TNtuple("FullSpectrum_ntuple","Veto All Data","charge:height:multi:time");
@@ -321,6 +325,7 @@ void DSTtreeSelector::BookHistograms()
   Veto_TPC_hist = new TH2F("Veto_TPC_hist","lsv cluster charge vs tpc s1 TBAsym;total_s1_TBAcorr [PE];od_cluster_charge[PE]",1000,0,25.e+3,1000,0,2000);
   id = new TH1F("id","event ID",1,0,1);
   list->Add(id);
+  list->Add(livetime);
   list->Add(Fulllate);
   list->Add(FullSpectrum);
   list->Add(F1Spectrum);

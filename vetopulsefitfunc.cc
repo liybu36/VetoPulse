@@ -95,7 +95,6 @@ double vetopulsefitfunc::Eval(double *x, double *params)
       spectrum = fMCFunc->GetBinContent(i);
       result  += spectrum*response_function(q,energy,params,choice);
     }
-  double rate = params[npar];
   return result;
 }
 
@@ -103,7 +102,13 @@ double vetopulsefitfunc::FitFunc(double *x, double *params)
 {
   double result = Eval(x, params);
   double delta = fMCFunc->GetBinWidth(1);
-  double rate   = params[npar];
+  double rate;
+  int lens = sizeof(params)/sizeof(double);
+  if(npar==lens-4)
+    rate = params[lens-2]/21.5;
+  else
+    rate = params[npar];
+
   return result*(rate)*params[0]*delta;    
 }
 
@@ -123,8 +128,8 @@ double vetopulsefitfunc::FitC14(double *x,double *params)
     }
   double C14Rate = params[npar];
 
-  return result*(C14Rate*(2100.e-9)/449177)*params[0]*delta + params[4]; //fieldon
-  //  return result*(C14Rate*(2100.e-9)/253431)*params[0]*delta + params[4]; //fieldoff
+  return result*(C14Rate*(2100.e-9)/449177)*params[0]*delta; //fieldon
+  //  return result*(C14Rate*(2100.e-9)/253431)*params[0]*delta; //fieldoff
 }
 
 double vetopulsefitfunc::FitFunc_1st(double *x, double *params)
@@ -146,6 +151,7 @@ double vetopulsefitfunc::FitFunc_2nd(double *x, double *params)
   double ndRate = pow(rate,3)*pow(window,2)*0.5*exp(-rate*window);
   return result*(ndRate)*params[0]*delta;
 }
+
 /*
 double vetopulsefitfunc::SumFuncs(double *x,double *params)
 {

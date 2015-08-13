@@ -122,6 +122,7 @@ void vetopulsemc::Analyze_MCData(int k)
 	}
     }
   GetFraction(k,NEntries);
+  cout<<"Finish Analyze_MCData "<<Source.at(k)<<endl;
 }
 
 void vetopulsemc::Analyze_MCCoinData(int k)
@@ -174,6 +175,7 @@ void vetopulsemc::Analyze_MCCoinData(int k)
     }
   EnergyMC.at(k)->Rebin(2);
   GetFraction(k,NEntries);
+  cout<<"Finish Analyze_MCCoinData "<<Source.at(k)<<endl;
 }
 
 void vetopulsemc::Analyze_U238MCCoinData(int k, int m, bool coin)
@@ -186,67 +188,56 @@ void vetopulsemc::Analyze_U238MCCoinData(int k, int m, bool coin)
   Int_t NEntries = recontree->GetEntries();
   cout<<"NEntries= "<<NEntries<<endl;
   Load_ReconTree(recontree,e.at(k));  
-
   double tpc_low_threshold=0.5;
   double prompt_time = -50.; //ns
   double delay_time = 50.; //ns
 
   for(Int_t i=0; i<NEntries; i++)
     { recontree->GetEntry(i);
-      vector<double> tpc_trigger_time;
-      for(Int_t j=0; j<e.at(k)->et->size(); j++)
-	{
-	  if(e.at(k)->volume->at(j)=="p_active" && e.at(k)->eqch->at(j)>tpc_low_threshold)
-	    {
-	      tpc_trigger_time.push_back(e.at(k)->et->at(j)*1.e+9);
-	      if(!e.at(k)->event_broken)
-		{
-		  TPC_EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
-		  TPC_EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
-		}
-	      else
-		{
-		  TPC_EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
-		  TPC_EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
-		}
-	    }
-	}
       if(coin){
-      if(tpc_trigger_time.size()>1)
-	std::sort(tpc_trigger_time.begin(),tpc_trigger_time.end(),Compare_Time);
-      if(tpc_trigger_time.size())
-	{
-	  for(Int_t j=0; j<e.at(k)->et->size(); j++)
-	    {
-	      if(e.at(k)->volume->at(j)=="p_scint")
-		{ double gps = e.at(k)->et->at(j)*1.e+9 - tpc_trigger_time.front();
-		  if(gps>-2000. && gps<100.)
-		    //  if(gps>prompt_time && gps<delay_time)
-		    {
-		      if(!e.at(k)->event_broken)
-			{
-			  EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
-			  EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
-			}
-		      else{
-			EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
-			EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
-		      }  }
-		} } }
-      }else{
-      for(Int_t j=0; j<e.at(k)->et->size(); j++)
-	{
-	  if(e.at(k)->volume->at(j)=="p_scint")
-	    {
-	      if(!e.at(k)->event_broken){
-		EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
-		EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
-	      }
-	      else{
-		EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
-		EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
-	      }
+	vector<double> tpc_trigger_time;
+	for(Int_t j=0; j<e.at(k)->et->size(); j++){
+	  if(e.at(k)->volume->at(j)=="p_active" && e.at(k)->eqch->at(j)>tpc_low_threshold){
+	    tpc_trigger_time.push_back(e.at(k)->et->at(j)*1.e+9);
+	    if(!e.at(k)->event_broken){
+	      TPC_EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
+	      TPC_EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
 	    }
+	    else{
+	      TPC_EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
+	      TPC_EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
+	    }
+	  }
+	}
+	if(tpc_trigger_time.size()>1)
+	  std::sort(tpc_trigger_time.begin(),tpc_trigger_time.end(),Compare_Time);
+	if(tpc_trigger_time.size()){
+	  for(Int_t j=0; j<e.at(k)->et->size(); j++){
+	    if(e.at(k)->volume->at(j)=="p_scint"){
+	      double gps = e.at(k)->et->at(j)*1.e+9 - tpc_trigger_time.front();
+	      if(gps>-2000. && gps<100.){
+		//  if(gps>prompt_time && gps<delay_time){		
+		if(!e.at(k)->event_broken){
+		  EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
+		  EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
+		}
+		else{
+		  EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
+		  EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
+		}  }
+	    } } }
+      }else{
+	for(Int_t j=0; j<e.at(k)->et->size(); j++){
+	  if(e.at(k)->volume->at(j)=="p_scint"){
+	    if(!e.at(k)->event_broken){
+	      EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
+	      EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
+	    }
+	    else{
+	      EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
+	      EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
+	    }
+	  }
 	}
       }
     }
@@ -255,6 +246,8 @@ void vetopulsemc::Analyze_U238MCCoinData(int k, int m, bool coin)
 
   EnergyMC.at(m)->Rebin(2);
   GetFraction(m,NEntries);  
+  
+  cout<<"Finish Analyze_U238MCCoinData "<<Source.at(k)<<endl;
 }
 
 void vetopulsemc::PDG_Analysis(int k)
@@ -295,15 +288,9 @@ void vetopulsemc::PDG_Analysis(int k)
 void vetopulsemc::BookHistograms()
 {
   string temp = "_EnergyMC";
-  for(size_t i=0; i<Source.size(); i++)
+  for(size_t k=0; k<Source.size(); k++)
     {
       e.push_back(new reconmcvar());
-    }  
-
-  for(size_t i=0; i<Source_Pos.size(); i++)
-    {
-      int k = Source_Pos.at(i);
-      //     e.push_back(new reconmcvar());
       EnergyMC.push_back(new TH1F(Form("%s%s",Source.at(k).c_str(),temp.c_str()),
 				  Form("%s MC Energy",Source.at(k).c_str()),NBins.at(k),0,NBins.at(k)*1.0));
       EnergyMC.back()->GetXaxis()->SetTitle("Quenching Energy [keVee]");
@@ -331,6 +318,7 @@ void vetopulsemc::BookHistograms()
 
 void vetopulsemc::Fill_U_Pos()
 {
+  U_Pos.push_back(Search_Isotope("Th232"));
   U_Pos.push_back(Search_Isotope("U235"));
   U_Pos.push_back(Search_Isotope("U238"));
 }
@@ -349,13 +337,14 @@ void vetopulsemc::MCData_Analysis(bool coin)
   for(size_t i=0; i<Source_Pos.size(); i++)
     {
       int k = Source_Pos.at(i);
+      cout<<"i= "<<i<<" k= "<<k<<endl;
       if(k==0)
-	//if(k==0 || k==1 || k==3)
+      // if(k==0 || k==3)
 	{
 	  PDG_Analysis(k);
 	  Analyze_MCData(k);
 	}
-      else if(Check_U_Pos(k)) //U235 and U238 Chain
+      else if(Check_U_Pos(k)) //Th232, U235 and U238 Chain
 	{
 	  PDG_Analysis(k);
 	  Analyze_U238MCCoinData(k,k+1,coin);
@@ -366,7 +355,7 @@ void vetopulsemc::MCData_Analysis(bool coin)
 	Analyze_MCCoinData(k);     
       }
     }
-  for(size_t i=0; i<Source_Pos.size(); i++)
+  for(size_t i=0; i<Source.size(); i++)
     MCValue_ntuple->Fill(fraction.at(i),Normalization.at(i));
 
   string output = GetMCinputdir() + GetMCFile();

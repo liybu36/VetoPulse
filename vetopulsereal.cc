@@ -42,7 +42,7 @@ void vetopulsereal::DST_Readdatafile(TChain *t, int start, int end, bool fieldon
       //run 11856 to 11928
       //      string dirname="/darkside/data/UAr_DSTs/";
       string dirname="/darkside/users/hqian/pulse_splitter/UAr_masadata/";
-      //  string dirname=GetRealinputdir();
+      //string dirname=GetRealinputdir();
       string middle="DST_Run";
       string last=".root";
       for(int i=start; i<=end; i++)

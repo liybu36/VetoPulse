@@ -1,3 +1,9 @@
+/*
+  How to run it:
+  set the isotopes in vetopulsebasic.cc file 
+  make
+  ./vetopulseMain cfg/testcfg.txt
+ */
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -32,18 +38,20 @@ TRint* theApp;
 void vetopulseMain(char *cfile)
 {
   Config config;
-  //  loadConfig(config, cfile);
   config.loadConfig(cfile);
-
+  cout<<config.DST<<" "<<config.OD<<" "<<config.sladdst<<endl;
+    
   vetopulsebasic *basic = new vetopulsebasic;  
-  basic->SetIsotopes();
+  //  basic->SetIsotopes();
 
   if(config.mc_tag){
     vetopulsemc *mc = new vetopulsemc;
     mc->SetMCinputdir(config.mcindir);
     mc->SetMCFile(config.mcfile);
-    mc->SetIsotopes();
-    mc->MCData_Analysis(true);
+    mc->SetBasics();
+    
+    mc->MCData_Analysis(config.mcu238);
+    delete mc;
   }
   if(config.real_tag){
     vetopulsereal *real = new vetopulsereal;
@@ -51,18 +59,13 @@ void vetopulseMain(char *cfile)
     real->SetRealFile(config.realfile);
     real->SetIsotopes();
    
-    config.DST = false;
-    config.OD = false;
-    config.SLADDST = true;
-    
-    cout<<config.DST<<" "<<config.OD<<" "<<config.SLADDST<<endl;
-    
     if(config.DST)
       real->DST_Selector(config.startrun,config.endrun,config.fieldon);
     if(config.OD)
       real->OD_Selector(config.startrun,config.endrun);
-    if(config.SLADDST)
+    if(config.sladdst)
       real->SLADDST_Selector(config.startrun,config.endrun); 
+    delete real;
   }
   if(config.totalfit_tag){
     vetopulsetotalfit *totalfit = new vetopulsetotalfit;
@@ -72,13 +75,13 @@ void vetopulseMain(char *cfile)
     totalfit->SetRealFile(config.realfile);
     totalfit->Setoutputdir(config.outdir);
     totalfit->SetOutFile(config.outfile);  
-    totalfit->SetIsotopes();
+    totalfit->SetBasics();
 
     totalfit->TotalFit(config.startfit);
+    delete totalfit;
   }
   
-  delete basic;
-   
+  delete basic;   
 }
 
 #ifndef __CINT__

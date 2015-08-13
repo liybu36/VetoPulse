@@ -54,6 +54,7 @@ public :
   bool Load_RealPlots();
   bool BookFitFuncs(int,int);
   void FillFitVars(int);
+  double GetLiveTime();
   
   std::vector<vetopulsefitfunc*> func;
   vetopulsefitfunc *total_func;

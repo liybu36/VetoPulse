@@ -1,17 +1,18 @@
-mcindir=/darkside/users/hqian/pulse_splitter/50daysMCData/
-mcfile=PulseSplitMCEnergy_v4_July10.root
-realindir=/darkside/users/hqian/pulse_splitter/UAr_masadata/
-realfile=PulseSplitRealEnergyUAr_mtree_July30.root
+mcindir=/darkside/users/hqian/pulse_splitter/SDMCData/
+mcfile=PulseSplitMCEnergy_v4thmr_July20.root
+realindir=/darkside/users/hqian/pulse_splitter/VetoData/
+realfile=PulseSplitRealEnergyUAr_mtree_July20.root
 outdir=/darkside/users/hqian/pulse_splitter/
-outfile=Pulse_Splitter_v4_fieldon_July30.root
+outfile=Pulse_Splitter_v4thmr_fieldon_July20.root
 startrun=11856
 endrun=12120
 mc_tag=0
-real_tag=1
-totalfit_tag=0
+real_tag=0
+totalfit_tag=1
 startfit=1
-DST=1
+mcu238=0
+DST=0
 OD=0
-SLADDST=0
+sladdst=0
 fieldon=1
 			     

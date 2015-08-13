@@ -10,8 +10,9 @@ mc_tag=0
 real_tag=1
 totalfit_tag=0
 startfit=1
+mcu238=1
 DST=0
 OD=0
-SLADDST=1
+sladdst=1
 fieldon=1
 			     

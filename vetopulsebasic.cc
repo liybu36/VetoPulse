@@ -83,7 +83,7 @@ void vetopulsebasic::SetIsotopes()
   NBins.push_back(2600);
   NBins.push_back(800);
   NBins.push_back(1600);
-  NBins.push_back(2000);
+  NBins.push_back(3500);
   NBins.push_back(2000);
   NBins.push_back(3500);
   NBins.push_back(900);
@@ -96,7 +96,7 @@ void vetopulsebasic::SetIsotopes()
   TBins.push_back(1600);
   TBins.push_back(500);
   TBins.push_back(1000);
-  TBins.push_back(1300);
+  TBins.push_back(2500);
   TBins.push_back(1300);
   TBins.push_back(2500);
   TBins.push_back(500);
@@ -128,4 +128,28 @@ vector<int> vetopulsebasic::Match_Isotope(vector<string> raw)
   for(size_t i=0; i<raw.size(); i++)
     Isotope_Pos.push_back(Search_Isotope(raw.at(i)));
   return Isotope_Pos;
+}
+
+vector<string> vetopulsebasic::Interested_Isotope()
+{
+  vector<string> raw;
+  raw.push_back("C14");  //0
+  raw.push_back("Co60"); //1 
+  raw.push_back("Co57"); //2
+  raw.push_back("K40");  //3
+  // raw.push_back("Tl208");//4 
+  raw.push_back("Th232");//5
+  raw.push_back("Th232Lower");//6
+  raw.push_back("U235");//7
+  raw.push_back("U235Lower");//8
+  raw.push_back("U238");//9
+  raw.push_back("U238Lower");//10
+  
+  return raw;
+}
+
+void vetopulsebasic::SetBasics()
+{
+  SetIsotopes();
+  Fill_Isotope_Pos(Interested_Isotope());  
 }

@@ -110,7 +110,7 @@ public :
      id(0),
      FullSpectrum(0),FullSpectrum_ntuple(0),C14Spectrum(0),Veto_TPC_hist(0),K40Spectrum(0),
      charge(0),height(0),width(0),Fulllate(0),Co60Spectrum(0),RandomSpectrum(0),
-     F1Spectrum(0), F2Spectrum(0)
+     F1Spectrum(0), F2Spectrum(0),livetime(0)
      { }
    virtual ~DSTtreeSelector() { }
    virtual Int_t   Version() const { return 2; }
@@ -137,7 +137,7 @@ public :
    bool multicut(float,float,float);
    TH1F *id;
    TH1F *FullSpectrum, *Fulllate, *RandomSpectrum;
-   TNtuple *FullSpectrum_ntuple;
+   TNtuple *FullSpectrum_ntuple,*livetime;
    TH1F *C14Spectrum,*Co60Spectrum, *K40Spectrum;
    TH1F *F1Spectrum, *F2Spectrum;
    TH2F *Veto_TPC_hist;
@@ -177,7 +177,7 @@ void DSTtreeSelector::Init(TTree *tree)
    fChain->SetBranchAddress("tpc_trigger_type", &tpc_trigger_type, &b_tpc_trigger_type);
    fChain->SetBranchAddress("tpc_gps_fine", &tpc_gps_fine, &b_tpc_gps_fine);
    fChain->SetBranchAddress("tpc_gps_coarse", &tpc_gps_coarse, &b_tpc_gps_coarse);
-   //   fChain->SetBranchAddress("tpc_livetime", &tpc_livetime, &b_tpc_livetime);
+   fChain->SetBranchAddress("tpc_livetime", &tpc_livetime, &b_tpc_livetime);
    //   fChain->SetBranchAddress("tpc_digital_sum", &tpc_digital_sum, &b_tpc_digital_sum);
    fChain->SetBranchAddress("tpc_s1_start_time", &tpc_s1_start_time, &b_tpc_s1_start_time);
    fChain->SetBranchAddress("tpc_total_s1", &tpc_total_s1, &b_tpc_total_s1);

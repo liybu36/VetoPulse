@@ -54,16 +54,14 @@ bool vetopulsetotalfit::Isotope_Activity(int isotopes)
   float fraction;
   MCValue_ntuple->SetBranchAddress("fraction",&fraction);
   int nEntries = MCValue_ntuple->GetEntries();
-  if(isotopes != nEntries){
-    cout<<"Error:Number of Isotopes doesn't match"<<endl;
-    return false;
-  }
   for(int i=0; i<nEntries; i++)
     {
       MCValue_ntuple->GetEntry(i);
-      isotope_activity.push_back(fraction);
+      if(fraction>0)
+	isotope_activity.push_back(fraction);
+      else continue;
     }
-  cout<<"Calculating Isotope_Activity"<<endl;
+  cout<<"Calculating Isotope_Activity "<<isotope_activity.size()<<endl;
   Isotope_Fraction(isotopes);  
   return true;
 }
@@ -92,17 +90,34 @@ double vetopulsetotalfit::GetIntegral(double startrange, double endrange)
   return sum;
 }
 
+double vetopulsetotalfit::GetLiveTime()
+{
+  TNtuple *LiveTime = (TNtuple*)RealFile->Get("livetime");
+  float sum = 0;
+  float live_time;
+  LiveTime->SetBranchAddress("live_time",&live_time);
+  for(int i=0; i<LiveTime->GetEntries(); i++)
+    {
+      LiveTime->GetEntry(i);
+      sum += live_time;
+    }
+  cout<<"Live Time is "<<sum<<endl;
+  return sum;
+}
+
 void vetopulsetotalfit::ScaleSpectrum(TH1F* f)
 {
   int rebins = 5;
   f->Rebin(rebins);
   f->Sumw2();
-  
+  double livetime = GetLiveTime();
+  /*
 #ifdef fieldon
   double livetime = 449177; //6103.64; //[s]
 #else
   double livetime = 253431; //[s]
 #endif
+  */
   f->Scale(1./livetime);
   f->SetTitle(""); 
 }
@@ -110,7 +125,6 @@ void vetopulsetotalfit::ScaleSpectrum(TH1F* f)
 bool vetopulsetotalfit::Load_MCPlots(int isotopes)
 {
   MCDataFile = GetMCinputdir() + GetMCFile();
-  cout<<MCDataFile<<endl;
   if(!Verifydatafile(MCDataFile))
     {
       cout<<"!!!Error: Cannot Load_MCPlots"<<endl;
@@ -128,8 +142,8 @@ bool vetopulsetotalfit::Load_MCPlots(int isotopes)
 bool vetopulsetotalfit::Load_RealPlots()
 {
   string RealDataFile = GetRealinputdir() + GetRealFile();
-  cout<<"Fitting "<<RealDataFile<<endl;
-  if(!Verifydatafile(MCDataFile))
+  cout<<"Fitting: "<<endl;
+  if(!Verifydatafile(RealDataFile))
     {
       cout<<"!!!Error: Cannot Load_RealPlots"<<endl;
       return false;
@@ -189,7 +203,7 @@ void vetopulsetotalfit::SetFitVar(int isotopes)
     {
       parvalues.push_back(integral_sum.at(i));
       parnames.push_back(Source.at(Source_Pos.at(i))+" Rate[Bq]");
-      paruplimits.push_back(integralsum*100);
+      paruplimits.push_back(integralsum*20);
     }  
   cout<<"Set FixVar"<<endl;
 }
@@ -201,22 +215,25 @@ double vetopulsetotalfit::SumFuncs(double *x, double *params)
     {
       sum += fitplot.at(i)->EvalPar(x,params);
     }
-  return sum;
+  return sum+params[4];
 }
 
 bool vetopulsetotalfit::BookFitFuncs(int isotopes, int parnums)
 { 
-  for(int i=0; i<isotopes; i++)
-    {
-      func.push_back(new vetopulsefitfunc(mcplot.at(i),i));
-      string fitplot_name = "Fit_" + Source.at(Source_Pos.at(i));
-      fitplot.push_back(new TF1(fitplot_name.c_str(),func.at(i),&vetopulsefitfunc::FitFunc,startrange,endrange,parnums));
-      Fitlist.Add(fitplot.back());
-    }
+  for(int i=0; i<isotopes; i++){
+    func.push_back(new vetopulsefitfunc(mcplot.at(i),i+primary_npar));
+    string fitplot_name = "Fit_" + Source.at(Source_Pos.at(i));
+    /*
+      if(Source.at(Source_Pos.at(i))=="Tl208")
+      fitplot.push_back(new TF1(fitplot_name.c_str(),func.at(i),&vetopulsefitfunc::FitFunc,1000.,endrange,parnums));
+      else
+    */
+    fitplot.push_back(new TF1(fitplot_name.c_str(),func.at(i),&vetopulsefitfunc::FitFunc,startrange,endrange,parnums));
+    Fitlist.Add(fitplot.back());
+  }
   //  TF1* Fit_C14 = new TF1("Fit_C14",split,&vetopulsesplit::C14Fit, startrange, endrange, parnums,"vetopulsesplit","C14Fit");
-  //  Fit_Total = new TF1(Fit_Total_name.c_str(),startrange,endrange,parnums);
   Fit_Total = new TF1("Fit_Total",this,&vetopulsetotalfit::SumFuncs,startrange,endrange,parnums);
- 
+  
   return true;
 }
 
@@ -225,10 +242,10 @@ void vetopulsetotalfit::FillFitVars(int parnums)
   for(int i=0; i<parnums; i++)
     {
       Fit_Total->SetParName(i,parnames[i].c_str());
-      if(i==0||i==2||i==3||i==4||i==7||i==8||i==5||i==15)
+      if(i==0||i==2||i==3||i==4||i==7||i==8||i==5||i==parnums-4){
 	Fit_Total->FixParameter(i,parvalues[i]);
-      else
-	{
+	cout<<"Fixed parnames: "<<i<<" "<<parnames.at(i)<<endl;
+      }else{
 	  Fit_Total->SetParameter(i, parvalues[i]);
 	  Fit_Total->SetParLimits(i,0,paruplimits[i]);
 	}
@@ -242,7 +259,7 @@ bool vetopulsetotalfit::TotalFit(int startfit)
   //  int isotope_number = static_cast<int> (Source.size());
   int isotope_number = static_cast<int> (Source_Pos.size());
 
-  cout<<isotope_number<<endl;
+  cout<<"Number of isotopes: "<<isotope_number<<endl;
 
   if(!Load_MCPlots(isotope_number) || !Load_RealPlots())
     return false;
@@ -250,7 +267,7 @@ bool vetopulsetotalfit::TotalFit(int startfit)
   ScaleSpectrum(FullSpectrum);
 
   TLegend *leg = new TLegend(0.5,0.7,0.8,1.0);
-  canv.push_back(new TCanvas("c1", "Full Spectrum with Fit", 1000, 400));
+  canv.push_back(new TCanvas("c2", "Full Spectrum with Fit", 1000, 400));
   canv.back()->SetLogy();
   canv.back()->cd();
   FullSpectrum->Draw();

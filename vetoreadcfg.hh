@@ -19,9 +19,10 @@ struct Config{
   int real_tag;
   int totalfit_tag;
   int startfit;
+  bool mcu238;
   bool DST;
   bool OD;
-  bool SLADDST;
+  bool sladdst;
   bool fieldon;
   
   void loadConfig(char*);
@@ -34,7 +35,8 @@ inline void Config::loadConfig(char* cfile) {
   string line;
   while (getline(fin, line)) {
     istringstream sin(line.substr(line.find("=") + 1));
-    if ((int)line.find("mcindir") != -1)
+    cout<<line<<endl;
+    if ((int)line.find("mcindir") != -1)      
       sin >> mcindir;
     else if ((int)line.find("mcfile") != -1)
       sin >> mcfile;
@@ -47,7 +49,7 @@ inline void Config::loadConfig(char* cfile) {
     else if ((int)line.find("outfile") != -1)
       sin >> outfile;
     else if ((int)line.find("startrun") != -1)
-      sin >> startrun;    
+      sin >> startrun;
     else if ((int)line.find("endrun") != -1)
       sin >> endrun;    
     else if ((int)line.find("mc_tag") != -1)
@@ -55,15 +57,17 @@ inline void Config::loadConfig(char* cfile) {
     else if ((int)line.find("real_tag") != -1)
       sin >> real_tag;    
     else if ((int)line.find("totalfit_tag") != -1)
-      sin >> totalfit_tag;    
+      sin >> totalfit_tag;
     else if ((int)line.find("startfit") != -1)
       sin >> startfit;    
+    else if ((int)line.find("mcu238") != -1)
+      sin >> mcu238;
     else if ((int)line.find("DST") != -1)
-      sin >> DST;    
+      sin >> DST;
     else if ((int)line.find("OD") != -1)
       sin >> OD;    
-    else if ((int)line.find("SLADDST") != -1)
-      sin >> SLADDST;    
+    else if ((int)line.find("sladdst") != -1)
+      sin >> sladdst;    
     else if ((int)line.find("fieldon") != -1)
       sin >> fieldon;    
 

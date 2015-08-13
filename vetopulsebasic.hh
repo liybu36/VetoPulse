@@ -48,6 +48,8 @@ public :
   int Search_Isotope(string);
   vector<int> Match_Isotope(vector<string>);
   void Fill_Isotope_Pos(vector<string>);
+  vector<string> Interested_Isotope();
+  void SetBasics();
 
   vector<double> GetFraction() { return fraction; }
   vector<int> GetNBins() { return NBins; }

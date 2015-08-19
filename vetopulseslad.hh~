@@ -1,0 +1,268 @@
+#ifndef _vetopulseslad_HH
+#define _vetopulseslad_HH
+
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <algorithm>
+
+#include "TROOT.h"
+#include "TChain.h"
+#include "TFile.h"
+#include "TH2F.h"
+#include "TH1F.h"
+#include "TNtuple.h"
+#include "TString.h"
+#include "TRint.h"
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TMath.h"
+
+#include "vetopulsebasic.hh"
+#include "../SLADLoadClass/sladtpcstruct.hh"
+#include "../SLADLoadClass/sladodstruct.hh"
+#include "../SLADLoadClass/SLADLoadClass.hh"
+
+class vetopulseslad:public vetopulsebasic, public SLADLoadClass
+{
+public:
+  vetopulseslad():
+    tpc_chain(0),s2_fraction(0),masaxy(0),jasonxy(0),pulse_info(0),
+    od_chain(0),FullSpectrum(0),F1Spectrum(0),F2Spectrum(0),C14Spectrum(0),
+    Co60Spectrum(0),RandomSpectrum(0),Veto_TPC_hist(0),livetime(0),FullSpectrum_ntuple(0)
+  {}
+
+  virtual ~vetopulseslad(){}
+
+  SLADTPCEvent e;
+  SLADODEvent t;
+  void SLADProcess(int, int);
+  void BookHistograms();
+  void LoopOverEvent();
+  void SaveHistograms();
+
+private:
+  TChain *tpc_chain, *s2_fraction, *masaxy, *jasonxy, *pulse_info;
+  TChain *od_chain;
+  TH1F *FullSpectrum, *F1Spectrum, *F2Spectrum, *C14Spectrum, *Co60Spectrum, *RandomSpectrum;
+  TH2F *Veto_TPC_hist;
+  TNtuple *livetime, *FullSpectrum_ntuple;
+
+  ClassDef(vetopulseslad,0);
+};
+
+#endif /* _vetopulseslad_HH */
+
+
+
+
+
+/*
+  bool Load_TPCTree(TChain*, SLADTPCEvent&);
+  bool Load_ODTree(TChain*, SLADODEvent&);
+  void Create_TPCChain();
+  bool Add_TPCTree(int);
+  void Add_TPCFriend();
+  void Create_ODChain();
+  bool Add_ODTree(int);
+
+struct TPCEvent
+{
+  TPCEvent():
+    run_id(0),subrun_id(0),event_id(0),trigger_multiplicity(0),tpc_digital_sum(0),hasV1724(0),
+    integrated_lifetime(0),integrated_inhibitime(0),gps_coarse(0),gps_fine(0),nchannel(0),
+    baseline_not_found(0),life_time(0),inhibit_time(0),acqui_window(0),selection_results(0),
+    tdrift(0),npulses(0),has_s3(0),has_s1echo(0),
+    s1_start_time(0),s1_end_time(0),s2_start_time(0),s2_end_time(0),
+    s1(0),s1_corr(0),total_s1_top(0),total_s1_bottom(0),
+    s1_total_f90(0),s1_total_f90_fixed(0),s1_total_f90_spe_mean(0),is_saturated_pulse0(0),
+    s1_max_chan(0),s1_max_frac(0),max_s1_frac_cut_threshold99(0),max_s1_frac_cut_exceeds99(0),
+    s2(0),s2_corr(0),total_s2_top(0),total_s2_bottom(0),s2_total_f90(0),s2_total_f90_fixed(0),s2_total_f90_spe_mean(0),
+    is_saturated_pulse1(0),bary_s2_x(0),bary_s2_y(0),
+    s2_max_chan(0),s2_max_frac(0),
+    jason_SCM(0),jason_x(0),jason_y(0),jason_chi2(0),jason_r(0),jason_theta(0),jason_xycorr_factor(0),
+    allpulses_xyl_npulses(0),allpulses_xyl_fidcut_ratio(0),allpulses_xyl_x(0),allpulses_xyl_y(0),
+    allpulses_xyl_chi2(0),allpulses_xyl_r(0),allpulses_xyl_theta(0),allpulses_xyl_xycorr_factor(0),
+    masa_x(0),masa_y(0),masa_chi2(0),masa_r(0),masa_theta(0),masa_xycorr_factor(0),
+    allpulses_npulses(0),allpulses_x(0),allpulses_y(0),allpulses_chi2(0),allpulses_r(0),allpulses_theta(0),allpulses_xycorr_factor(0),
+    pulse_info_npulses(0),pulse_info_pulse_id(0),pulse_info_start_time(0),pulse_info_end_time(0),pulse_info_peak_time(0),
+    pulse_info_max_chan(0),pulse_info_total_npe(0),pulse_info_f90(0),pulse_info_f200(0),pulse_info_saturated(0),
+    pulse_info_fixed_int1(0),pulse_info_fixed_int2(0),pulse_info_ch_light_size(0),pulse_info_light(0),pulse_info_satcorr_f90(0),
+    pulse_info_satcorr_f90_fixed(0),pulse_info_satcorr_fixed_int1(0),pulse_info_satcorr_fixed_int2(0),
+    pulse_info_satcorr_f200(0),pulse_info_satcorr_f200_fixed(0)
+  {}
+
+  //events tree
+  int    run_id;
+  int    subrun_id;
+  int    event_id;
+  int    trigger_multiplicity;
+  int    tpc_digital_sum;
+  int    hasV1724;
+  //logbook tree
+  double integrated_lifetime;
+  double integrated_inhibitime;
+  //gps tree
+  int    gps_coarse;
+  int    gps_fine;
+  //nchannel tree
+  int    nchannel;
+  //baseline tree
+  short  baseline_not_found;
+  //long_lifetime tree
+  double life_time;
+  double inhibit_time;
+  //acqui_window tree
+  float  acqui_window;//[us]
+  //standard_cuts tree
+  double selection_results;
+  //tdrift tree
+  double tdrift;
+  //npulses tree
+  int    npulses;
+  int    has_s3;
+  int    has_s1echo;
+  //s1_time tree
+  float  s1_start_time;
+  float  s1_end_time;
+  float  s2_start_time;
+  float  s2_end_time;
+  //s1 tree
+  float  s1;
+  float  s1_corr;
+  float  total_s1_top;
+  float  total_s1_bottom;
+  //s1_f90 tree
+  float  s1_total_f90;
+  float  s1_total_f90_fixed;
+  float  s1_total_f90_spe_mean;
+  //s1_saturation tree
+  int    is_saturated_pulse0;
+  //s1_fraction tree
+  int    s1_max_chan;
+  float  s1_max_frac;
+  //max_s1_frac_cut tree
+  float  max_s1_frac_cut_threshold99;
+  int    max_s1_frac_cut_exceeds99;
+  //s2 tree
+  float  s2;
+  float  s2_corr;
+  float  total_s2_top;
+  float  total_s2_bottom;
+  //s2_f90 tree
+  float  s2_total_f90;
+  float  s2_total_f90_fixed;
+  float  s2_total_f90_spe_mean;
+  //s2_saturation tree
+  int    is_saturated_pulse1;
+  //bary_s2 tree
+  float  bary_s2_x;
+  float  bary_s2_y;
+  //s2_fraction tree
+  int    s2_max_chan;
+  float  s2_max_frac;
+  float  s2_chan[38];
+  //xylocator_xy tree
+  float  jason_SCM;
+  float  jason_x;
+  float  jason_y;
+  float  jason_chi2;
+  float  jason_r;
+  float  jason_theta;
+  float  jason_xycorr_factor;
+  //allpulses_xyl_xy tree
+  int    allpulses_xyl_npulses;
+  float  allpulses_xyl_fidcut_ratio;
+  float  allpulses_xyl_x;
+  float  allpulses_xyl_y;
+  float  allpulses_xyl_chi2;
+  float  allpulses_xyl_r;
+  float  allpulses_xyl_theta;
+  float  allpulses_xyl_xycorr_factor;
+  //masa_xy tree
+  float  masa_x;
+  float  masa_y;
+  float  masa_chi2;
+  float  masa_r;
+  float  masa_theta;
+  float  masa_xycorr_factor;
+  //allpulses_xy tree
+  int   allpulses_npulses;
+  float allpulses_x;
+  float allpulses_y;
+  float allpulses_chi2;
+  float allpulses_r;
+  float allpulses_theta;
+  float allpulses_xycorr_factor;
+  //pulse_info tree
+  float pulse_info_npulses;
+  float pulse_info_pulse_id;
+  float pulse_info_start_time;
+  float pulse_info_end_time;
+  float pulse_info_peak_time;
+  float pulse_info_max_chan;
+  float pulse_info_total_npe;
+  float pulse_info_f90;
+  float pulse_info_f200;
+  float pulse_info_saturated;
+  float pulse_info_fixed_int1;
+  float pulse_info_fixed_int2;
+  float pulse_info_ch_light_size;
+  float pulse_info_light;
+  float pulse_info_satcorr_f90;
+  float pulse_info_satcorr_f90_fixed;
+  float pulse_info_satcorr_fixed_int1;
+  float pulse_info_satcorr_fixed_int2;
+  float pulse_info_satcorr_f200;
+  float pulse_info_satcorr_f200_fixed;
+};
+
+struct ODEvent {
+  Int_t    od_run;
+  Int_t    od_event;
+  Int_t    od_present;
+  Double_t od_timestamp;
+  Float_t  lsv_total_charge;
+  Float_t  wt_total_charge;
+  std::vector<float>   roi_lsv_charge;
+  std::vector<float>   slider_lsv_charge;
+  std::vector<float>   slider_lsv_time;
+  Int_t    od_nclusters;
+  std::vector<float> od_cluster_charge;
+  std::vector<float> od_cluster_start;//ns
+  std::vector<float> od_cluster_height;
+  std::vector<float> od_cluster_multiplicity;
+  std::vector<int>   od_cluster_pass_multcut;
+  std::vector<float> od_cluster_dtprompt;//us
+
+  ODEvent():
+    od_run(-1),od_event(-1), od_present(0),od_timestamp(0),
+    lsv_total_charge(0.),wt_total_charge(0.),
+    roi_lsv_charge(),slider_lsv_charge(),slider_lsv_time(),
+    od_nclusters(-1),od_cluster_charge(),od_cluster_start(),
+    od_cluster_height(),od_cluster_multiplicity(),od_cluster_pass_multcut(),
+    od_cluster_dtprompt()
+  {}
+
+  inline void clear(){
+    od_run = -1;
+    od_event = -1;
+    od_present = 0;
+    od_timestamp = 0;
+    lsv_total_charge = -1.;
+    wt_total_charge = -1.;
+    roi_lsv_charge.clear();
+    slider_lsv_charge.clear();
+    slider_lsv_time.clear();
+    od_nclusters = -1;
+    od_cluster_charge.clear();
+    od_cluster_start.clear();
+    od_cluster_height.clear();
+    od_cluster_multiplicity.clear();
+    od_cluster_pass_multcut.clear();
+    od_cluster_dtprompt.clear();
+  }
+};
+*/

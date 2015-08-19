@@ -168,8 +168,7 @@ void vetopulsemc::Analyze_MCCoinData(int k)
 		    {
 		      EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
 		      EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
-		      //  TPC_Veto_EnergyMC.at(k)->Fill(tpc_total,e.at(k)->eqch->at(j));
-		      TPC_Veto_EnergyMC.at(k)->Fill(tpc_total,e.at(k)->edep->at(j));
+		      TPC_Veto_EnergyMC.at(k)->Fill(tpc_total,e.at(k)->eqch->at(j));
 		    }
 		}
 	    }
@@ -228,14 +227,12 @@ void vetopulsemc::Analyze_U238MCCoinData(int k, int m, bool coin)
 		if(!e.at(k)->event_broken){
 		  EnergyMC.at(k)->Fill(e.at(k)->eqch->at(j));
 		  EdepMC.at(k)->Fill(e.at(k)->edep->at(j));
-		  // TPC_Veto_EnergyMC.at(k)->Fill(tpc_up_total,e.at(k)->eqch->at(j));
-		  TPC_Veto_EnergyMC.at(k)->Fill(tpc_up_total,e.at(k)->edep->at(j));
+		  TPC_Veto_EnergyMC.at(k)->Fill(tpc_up_total,e.at(k)->eqch->at(j));
 		}
 		else{
 		  EnergyMC.at(m)->Fill(e.at(k)->eqch->at(j));
 		  EdepMC.at(m)->Fill(e.at(k)->edep->at(j));
-		  // TPC_Veto_EnergyMC.at(m)->Fill(tpc_low_total,e.at(k)->eqch->at(j));		 
-		  TPC_Veto_EnergyMC.at(m)->Fill(tpc_low_total,e.at(k)->edep->at(j));		 
+		  TPC_Veto_EnergyMC.at(m)->Fill(tpc_low_total,e.at(k)->eqch->at(j));		 
 		}  }
 	    } } }
       }else{

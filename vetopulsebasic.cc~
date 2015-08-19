@@ -137,9 +137,9 @@ vector<string> vetopulsebasic::Interested_Isotope()
   raw.push_back("Co60"); //1 
   //  raw.push_back("Co57"); //2
   raw.push_back("K40");  //3
-  // raw.push_back("Tl208");//4 
-  raw.push_back("Th232");//5
-  raw.push_back("Th232Lower");//6
+  raw.push_back("Tl208");//4 
+  //  raw.push_back("Th232");//5
+  // raw.push_back("Th232Lower");//6
   raw.push_back("U235");//7
   raw.push_back("U235Lower");//8
   raw.push_back("U238");//9

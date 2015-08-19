@@ -25,6 +25,7 @@
 #include "vetopulsefitfunc.hh"
 #include "vetopulsebasic.hh"
 #include "vetopulsetotalfit.hh"
+#include "vetopulseslad.hh"
 #include "reconmcvar.hh"
 #include "vetoreadcfg.hh"
 #include "./odselector/odselector.h"
@@ -41,11 +42,11 @@ void vetopulseMain(char *cfile)
   config.loadConfig(cfile);
   cout<<config.DST<<" "<<config.OD<<" "<<config.sladdst<<endl;
     
-  vetopulsebasic *basic = new vetopulsebasic;  
+  //  vetopulsebasic *basic = new vetopulsebasic;  
   //  basic->SetIsotopes();
 
   if(config.mc_tag){
-    vetopulsemc *mc = new vetopulsemc;
+    vetopulsemc *mc = new vetopulsemc();
     mc->SetMCinputdir(config.mcindir);
     mc->SetMCFile(config.mcfile);
     mc->SetBasics();
@@ -54,21 +55,31 @@ void vetopulseMain(char *cfile)
     delete mc;
   }
   if(config.real_tag){
-    vetopulsereal *real = new vetopulsereal;
+    vetopulsereal *real = new vetopulsereal();
     real->SetRealinputdir(config.realindir);
     real->SetRealFile(config.realfile);
-    real->SetIsotopes();
+    //    real->SetIsotopes();
    
     if(config.DST)
       real->DST_Selector(config.startrun,config.endrun,config.fieldon);
     if(config.OD)
       real->OD_Selector(config.startrun,config.endrun);
-    if(config.sladdst)
-      real->SLADDST_Selector(config.startrun,config.endrun); 
+    // if(config.sladdst)
+    // real->SLADDST_Selector(config.startrun,config.endrun); 
     delete real;
   }
+  if(config.real_tag && config.sladdst)
+    {
+      vetopulseslad *slad = new vetopulseslad();
+      slad->SetRealinputdir(config.realindir);
+      slad->SetRealoutputdir(config.realoutputdir);
+      slad->SetRealFile(config.realfile);
+      slad->SLADProcess(config.startrun,config.endrun);
+
+      delete slad;
+    }
   if(config.totalfit_tag){
-    vetopulsetotalfit *totalfit = new vetopulsetotalfit;
+    vetopulsetotalfit *totalfit = new vetopulsetotalfit();
     totalfit->SetMCinputdir(config.mcindir);
     totalfit->SetMCFile(config.mcfile);
     totalfit->SetRealinputdir(config.realindir);
@@ -81,7 +92,7 @@ void vetopulseMain(char *cfile)
     delete totalfit;
   }
   
-  delete basic;   
+
 }
 
 #ifndef __CINT__

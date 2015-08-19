@@ -155,11 +155,11 @@ void DSTtreeSelector::Terminate()
   Veto_TPC_hist = dynamic_cast<TH2F*>(list->FindObject(Form("Veto_TPC_hist"))); 
   id = dynamic_cast<TH1F*>(list->FindObject(Form("id")));
   livetime = dynamic_cast<TNtuple*>(list->FindObject(Form("livetime")));
-  range.push_back(dynamic_cast<TNtuple*>(list->FindObject(Form("tl208_peak"))));
-  range.push_back(dynamic_cast<TNtuple*>(list->FindObject(Form("co60_peak1"))));
-  range.push_back(dynamic_cast<TNtuple*>(list->FindObject(Form("co60_peak2"))));
-  range.push_back(dynamic_cast<TNtuple*>(list->FindObject(Form("co60_peak3"))));
-  range.push_back(dynamic_cast<TNtuple*>(list->FindObject(Form("u238_peak1"))));
+  range.at(0) = dynamic_cast<TNtuple*>(list->FindObject(Form("tl208_peak")));
+  range.at(1) = dynamic_cast<TNtuple*>(list->FindObject(Form("co60_peak1")));
+  range.at(2) = dynamic_cast<TNtuple*>(list->FindObject(Form("co60_peak2")));
+  range.at(3) = dynamic_cast<TNtuple*>(list->FindObject(Form("co60_peak3")));
+  range.at(4) = dynamic_cast<TNtuple*>(list->FindObject(Form("u238_peak1")));
 
   int nEntries = id->Integral();
   TCanvas *c1 = new TCanvas("c1", "Full Spectrum with Fit", 1200, 600);

@@ -10,6 +10,7 @@ struct Config{
   string mcindir;
   string mcfile;
   string realindir;
+  string realoutputdir;
   string realfile;
   string outdir;
   string outfile;
@@ -44,6 +45,8 @@ inline void Config::loadConfig(char* cfile) {
       sin >> realindir;
     else if ((int)line.find("realfile") != -1)
       sin >> realfile;
+    else if ((int)line.find("realoutputdir") != -1)
+      sin >> realoutputdir;
     else if ((int)line.find("outdir") != -1)
       sin >> outdir;
     else if ((int)line.find("outfile") != -1)

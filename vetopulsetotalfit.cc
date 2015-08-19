@@ -125,17 +125,15 @@ void vetopulsetotalfit::ScaleSpectrum(TH1F* f)
 bool vetopulsetotalfit::Load_MCPlots(int isotopes)
 {
   MCDataFile = GetMCinputdir() + GetMCFile();
-  if(!Verifydatafile(MCDataFile))
-    {
-      cout<<"!!!Error: Cannot Load_MCPlots"<<endl;
-      return false;
-    }
+  if(!Verifydatafile(MCDataFile)){
+    cout<<"!!!Error: Cannot Load_MCPlots"<<endl;
+    return false;
+  }
   MCFile = new TFile(MCDataFile.c_str());
-  for(int i=0; i<isotopes; i++)
-    {
-      mcplot.push_back((TH1F*)MCFile->Get(Form("%s_EnergyMC",Source.at(Source_Pos.at(i)).c_str())));
-      MClist.Add(mcplot.at(i));
-    }  
+  for(int i=0; i<isotopes; i++){
+    mcplot.push_back((TH1F*)MCFile->Get(Form("%s_EnergyMC",Source.at(Source_Pos.at(i)).c_str())));
+    MClist.Add(mcplot.at(i));
+  }  
   return true;
 }
 
@@ -143,11 +141,10 @@ bool vetopulsetotalfit::Load_RealPlots()
 {
   string RealDataFile = GetRealinputdir() + GetRealFile();
   cout<<"Fitting: "<<endl;
-  if(!Verifydatafile(RealDataFile))
-    {
-      cout<<"!!!Error: Cannot Load_RealPlots"<<endl;
-      return false;
-    }
+  if(!Verifydatafile(RealDataFile)){
+    cout<<"!!!Error: Cannot Load_RealPlots"<<endl;
+    return false;
+  }
   RealFile = new TFile(RealDataFile.c_str());
   FullSpectrum = (TH1F*) RealFile->Get("FullSpectrum");
   return true;
@@ -203,7 +200,7 @@ void vetopulsetotalfit::SetFitVar(int isotopes)
     {
       parvalues.push_back(integral_sum.at(i));
       parnames.push_back(Source.at(Source_Pos.at(i))+" Rate[Bq]");
-      paruplimits.push_back(integralsum*20);
+      paruplimits.push_back(integralsum*100);
     }  
   cout<<"Set FixVar"<<endl;
 }
@@ -255,25 +252,20 @@ void vetopulsetotalfit::FillFitVars(int parnums)
 bool vetopulsetotalfit::TotalFit(int startfit)
 {
   Init();
-  //  vector<string> Source = GetIsotopes();
-  //  int isotope_number = static_cast<int> (Source.size());
   int isotope_number = static_cast<int> (Source_Pos.size());
-
   cout<<"Number of isotopes: "<<isotope_number<<endl;
 
   if(!Load_MCPlots(isotope_number) || !Load_RealPlots())
     return false;
 
   ScaleSpectrum(FullSpectrum);
-
   TLegend *leg = new TLegend(0.5,0.7,0.8,1.0);
   canv.push_back(new TCanvas("c2", "Full Spectrum with Fit", 1000, 400));
   canv.back()->SetLogy();
   canv.back()->cd();
   FullSpectrum->Draw();
 
-  integralsum = GetIntegral(startrange,endrange);
-  
+  integralsum = GetIntegral(startrange,endrange);  
   const Int_t parnums = isotope_number + primary_npar;
 
   if(!Each_Isotope_Sum(isotope_number))
